@@ -1,0 +1,74 @@
+<!-- html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f9f9f9; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .logs { background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .users { background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .log-entry, .user-entry { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 10px; background: #fafafa; border-radius: 3px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Admin Dashboard</h1>
+    <h2>Usuarios Logados</h2>
+    <div id="users" class="users"></div>
+    <h2>HTTP Logs (últimas 100 requisições)</h2>
+    <div id="logs" class="logs"></div>
+</div>
+
+<script>
+    async function loadLogs() {
+        try {
+            const response = await fetch('/admin/dashboard/logs');
+            const logs = await response.json();
+            const logsDiv = document.getElementById('logs');
+
+            logsDiv.innerHTML = logs.map(log => {
+                const statusClass = `status-${String(log.status).charAt(0)}`;
+                return `
+                        <div class="log-entry">
+                            <span class="log-method">${log.method}</span>
+                            <span class="log-uri">${log.uri}</span>
+                            <span class="${statusClass}">${log.status}</span>
+                            <span style="color: #999; font-size: 12px;">${new Date(log.timestamp).toLocaleTimeString('pt-BR')}</span>
+                            ${log.requestBody ? `<div class="log-body"><strong>Request:</strong> ${log.requestBody}</div>` : ''}
+                            ${log.responseBody ? `<div class="log-body"><strong>Response:</strong> ${log.responseBody}</div>` : ''}
+                        </div>
+                    `;
+            }).join('');
+        } catch (error) {
+            console.error('Erro ao carregar logs:', error);
+        }
+    }
+
+    async function loadUsers() {
+        try {
+            const response = await fetch('/admin/dashboard/users');
+            const users = await response.json();
+            const usersDiv = document.getElementById('users');
+
+            usersDiv.innerHTML = users.map(user => {
+                return `
+                        <div class="user-entry">
+                            <div><strong>${user.username}</strong></div>
+                            <div style="font-size:12px;color:#666;">Entrada: ${new Date(user.issuedAt).toLocaleString('pt-BR')}</div>
+                            <div style="font-size:12px;color:#666;">Expira: ${new Date(user.expiresAt).toLocaleString('pt-BR')}</div>
+                        </div>
+                    `;
+            }).join('');
+        } catch (error) {
+            console.error('Erro ao carregar usuarios:', error);
+        }
+    }
+
+    setInterval(loadLogs, 2000);
+    setInterval(loadUsers, 2000);
+    loadLogs();
+    loadUsers();
+</script>
+</body>
+</html>
