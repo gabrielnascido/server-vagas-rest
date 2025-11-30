@@ -42,15 +42,14 @@ public class JobsService {
                 .map(User::getName)
                 .orElse("Empresa Desconhecida");
 
-        String location = job.getCity() + "/" + job.getState();
-
         return new JobsResponseDTO(
                 job.getId(),
                 job.getTitle(),
                 job.getArea().getName(),
                 job.getDescription(),
                 companyName,
-                location,
+                job.getCity(),
+                job.getState(),
                 job.getSalary()
         );
     }

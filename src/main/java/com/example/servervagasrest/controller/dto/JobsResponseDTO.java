@@ -8,7 +8,8 @@ public record JobsResponseDTO(
         String area,
         String description,
         String company,
-        String location,
+        String city,
+        String state,
         Float salary
         ) {
 
