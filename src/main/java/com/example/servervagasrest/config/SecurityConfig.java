@@ -1,10 +1,13 @@
 package com.example.servervagasrest.config;
 
+import com.example.servervagasrest.RequestResponseLoggingFilter;
 import com.example.servervagasrest.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -37,6 +40,18 @@ public class SecurityConfig {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
         this.tokenService = tokenService;
+    }
+
+    @Bean
+    public FilterRegistrationBean<RequestResponseLoggingFilter> loggingFilter() {
+        FilterRegistrationBean<RequestResponseLoggingFilter> registrationBean = new FilterRegistrationBean<>();
+
+        registrationBean.setFilter(new RequestResponseLoggingFilter());
+        registrationBean.addUrlPatterns("/*");
+
+        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+
+        return registrationBean;
     }
 
     @Bean

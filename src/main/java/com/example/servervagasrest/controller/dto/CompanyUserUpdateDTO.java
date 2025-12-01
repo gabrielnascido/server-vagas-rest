@@ -24,7 +24,7 @@ public record CompanyUserUpdateDTO(
         @Pattern(regexp = "^$|.{3,150}", message = "{error.invalid_format}")
         String city,
 
-        @Pattern(regexp = "^$|.{1,8}", message = "{error.invalid_format}")
+        @Pattern(regexp = "^[0-9]{1,8}$", message = "{error.invalid_format}")
         String number,
 
         @Pattern(regexp = "^$|.{2,100}", message = "{error.invalid_format}")

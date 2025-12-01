@@ -3,6 +3,8 @@ package com.example.servervagasrest.controller;
 import com.example.servervagasrest.controller.dto.*;
 import com.example.servervagasrest.model.Job;
 import com.example.servervagasrest.model.User;
+import com.example.servervagasrest.repository.UserRepository;
+import com.example.servervagasrest.service.ComumUserService;
 import com.example.servervagasrest.service.JobsService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -17,9 +19,11 @@ import java.util.Map;
 public class JobsController {
 
     private final JobsService jobsService;
+    private final ComumUserService comumUserService;
 
-    public JobsController(JobsService jobsService) {
+    public JobsController(JobsService jobsService, UserRepository userRepository, ComumUserService comumUserService) {
         this.jobsService = jobsService;
+        this.comumUserService = comumUserService;
     }
 
     @PostMapping
@@ -140,6 +144,7 @@ public class JobsController {
             @AuthenticationPrincipal User authenticatedUser) {
 
         Job job = jobsService.findById(jobId);
+        User user = comumUserService.findById(feedbackDTO.user_id());
 
         if (job == null) {
             return new ResponseEntity<>(Map.of("message", "Job not found"), HttpStatus.NOT_FOUND);
@@ -149,7 +154,7 @@ public class JobsController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        jobsService.giveFeedback(job, authenticatedUser, feedbackDTO.getMessage());
+        jobsService.giveFeedback(job, user, feedbackDTO.getMessage());
 
         Map<String, String> response = Map.of("message", "Feedback sent successfully");
 

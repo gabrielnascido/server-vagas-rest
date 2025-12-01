@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-@Component
+
 public class RequestResponseLoggingFilter implements Filter {
 
     public static final int MAX_LOGS = 100;

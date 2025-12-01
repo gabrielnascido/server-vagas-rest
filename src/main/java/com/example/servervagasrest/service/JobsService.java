@@ -5,6 +5,7 @@ import com.example.servervagasrest.controller.dto.*;
 import com.example.servervagasrest.exception.ForbiddenAccessException;
 import com.example.servervagasrest.exception.JobNotFoundException;
 import com.example.servervagasrest.model.Application;
+import com.example.servervagasrest.model.Area;
 import com.example.servervagasrest.model.Job;
 import com.example.servervagasrest.model.User;
 import com.example.servervagasrest.repository.ApplicationRepository;
@@ -121,8 +122,12 @@ public class JobsService {
             existingJob.setState(dto.state());
         }
 
-        if (dto.salary() != null) {
+        if (dto.salary() != existingJob.getSalary()) {
             existingJob.setSalary(dto.salary());
+        }
+
+        if(dto.area() != null) {
+            existingJob.setArea(Area.valueOf(String.valueOf(dto.area())));
         }
 
         return jobsRepository.save(existingJob);
@@ -138,6 +143,12 @@ public class JobsService {
             throw new ForbiddenAccessException("Only comum users can apply to jobs");
         }
 
+        var app = applicationRepository.findByJobIdAndCandidateId(job.getId(), candidate.getId());
+
+        if (app != null) {
+            throw new ForbiddenAccessException("You already have an application to the job");
+        }
+
         Application application = new Application();
         application.setJobId(job.getId());
         application.setCandidateId(candidate.getId());
@@ -147,6 +158,10 @@ public class JobsService {
 
     public void giveFeedback(Job job, User candidate, String feedback) {
         Application application = applicationRepository.findByJobIdAndCandidateId(job.getId(), candidate.getId());
+
+        if (application.getFeedback() != null) {
+            throw new ForbiddenAccessException("You already provided feedback on this application.");
+        }
 
         if (application == null) {
             throw new ForbiddenAccessException("Job, User or Application not found");

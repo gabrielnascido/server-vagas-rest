@@ -88,6 +88,17 @@ public class CompanyUserController {
 
         CompanyUser user = companyUserService.findById(companyId);
 
+        if (user == null) {
+            return new ResponseEntity<>(Map.of("message", "Company not found"), HttpStatus.NOT_FOUND);
+        }
+
+        //se houver uma vaga, a empresa não pode ser deletada
+        List<Job> jobs = jobsRepository.findByCompanyUserId(companyId);
+
+        if (!jobs.isEmpty()) {
+            throw new ForbiddenAccessException("Cannot delete company with existing job postings");
+        }
+
         if (!authenticatedUser.getId().equals(companyId)) {
             throw new ForbiddenAccessException("Forbidden");
         }
